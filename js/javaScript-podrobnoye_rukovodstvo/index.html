@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<p>Привет гандон</p>
+	<script>
+		window.onload = function(){
+			var worker = new Worker("script.js");
+			worker.onmessage = function(e){
+				console.log(e.data);
+			}
+			worker.postMessage('хуй');
+		}
+	</script>
+</body>
+</html>

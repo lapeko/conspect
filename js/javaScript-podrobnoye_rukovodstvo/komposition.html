@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<script>
+
+		var extend = (function(){
+			for (var bol in {toString: null}){
+				var copy = function(o){
+					for (var i = 1; i < arguments.length; i++)
+						for (var prop in arguments[i])
+							o[prop] = arguments[i][prop];
+					return o;
+				}
+				return copy;
+			}
+			var methods = ['hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'toLocaleString', 'toString', 'valueOf', 'constructor'];
+			return function fixExtend(o){
+				for (var i = 1; i < arguments.length; i++)
+					for (var prop in arguments[i])
+						o[prop] = arguments[i][prop];
+				for (var prop in methods)
+					if (!(o.hasOwnProperty(o[prop]))) o[prop] = methods[prop];
+			}	
+		})();
+
+		function defineClass(superClass, constructor, methods, statics){
+			constructor.prototype = Object.create(superClass);
+			extend(constructor.prototype, methods);
+			extend(constructor, statics);
+			return constructor;
+		}
+
+		Function.prototype.extends = function(superClass, methods, statics){
+			return defineClass(this, superClass, methods, statics);
+		}
+
+		var Set = (function(){
+			
+			function Set(){
+				this.values = [];
+				this.add.apply(this, arguments);
+				console.log('++ ' + this.values);
+			}
+
+			Set.prototype = {
+				add: function(){
+					var added = false;
+					for (var i in arguments)
+						if (typeof arguments[i] !== 'object' && typeof arguments[i] !== 'function' && this.values.indexOf(arguments[i]) < 0 && (added = true))
+							this.values.push(arguments[i]);
+					if (added) this.values.sort(function(a, b){ return a - b; });
+					return added;
+				},
+				remove: function(){
+					var index, deletted = false;
+					if ((index = this.values.indexOf(arguments[0])) >= 0)
+						deletted = !!this.values.splice(index, 1);
+					if (deletted) this.values.sort(function(a, b){ return a - b; });
+					return deletted;
+				},
+				constructor: Set,
+				toString: function(){
+					return this.values.toString();
+				}
+			};
+
+			return Set;
+
+		}());
+
+		//         Применить функцию extend и дотестировать пример из учебника по композиции
+		
+		var FilterSet = Set.extends(
+			function FilterSet(set, filter){
+				this.set = set;
+				this.filter = filter;
+			},
+			{
+				add: function(){
+					for (var i = 0; i < arguments.length; i++){
+						if (!this.filter)
+							this.set.add.call(this.set, arguments[i]);
+						else if(this.filter(arguments[i]))
+							this.set.add.call(this.set, arguments[i]);
+					}
+				},
+				remove: function(){
+					this.set.remove.apply(this, arguments);
+					return this;
+				},
+				toString: function(){
+					return this.set.toString();
+				}
+			}
+		);
+		
+		var s = new FilterSet(new Set(1, 3, 5), function(x){ return x % 2 === 0; });
+		console.log(s);
+		s.add(1, 2, 3, 4, 5, 6, 7, 8);
+		console.log(s);
+		var q = new FilterSet(s, function(x){ return x % 3 === 0; });
+		for (var i = 30; i--;)
+			q.add(i);
+		console.log(q.toString());
+		
+	</script>
+</body>
+</html>

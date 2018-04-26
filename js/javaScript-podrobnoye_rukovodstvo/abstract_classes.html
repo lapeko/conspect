@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<script>
+
+		function isNum(test){
+			return !isNaN(test) && test !== ' ';
+		}
+		
+		Function.prototype.extend = function(constructor, methods, statics){
+			return defineClass(this, constructor, methods, statics);
+		}
+
+		function abstractMethod(){
+			throw new Error('Абстрактный метод');
+		}
+
+		function AbstractShape(){
+			throw new Error('Нельзя создавать экземляры абстрактного класса');
+		}
+		AbstractShape.prototype.getSquare = abstractMethod;
+	
+
+		var Square = AbstractShape.extend(
+			function Square(a){
+				this.a = a;
+			},
+			{
+				getSquare: function(){return this.a * this.a; }
+			}
+		);
+
+		var Dot = function(x, y){
+			if (!isNum(x) || !isNum(y)) throw new Error('Координатами точек могут быть только числа.');
+			this.x = x;
+			this.y = y;
+		}
+
+		var TriangleCoordinate = AbstractShape.extend(
+			function(dot1, dot2, dot3){
+				if (dot1.constructor !== Dot || dot2.constructor !== Dot || dot3.constructor !== Dot)
+					throw new Error('Точки должны быть заданны с помощью объектов класса \'Dot\'');
+				this.dot1 = dot1;
+				this.dot2 = dot2;
+				this.dot3 = dot3;
+			},
+			{
+				getSquare: function(){
+					with(this){
+						var sum = (dot1.x * dot2.y - dot1.x * dot3.y - dot3.x * dot2.y + dot3.x * dot3.y) / 2 -
+							(dot2.x * dot1.y - dot2.x * dot3.y - dot3.x * dot1.y + dot3.x * dot3.y) / 2;
+					}
+					return sum >= 0 ? sum : -sum;
+				}
+			}
+		)
+		
+		function defineClass(superclass, constructor, methods, statics){
+			constructor.prototype = Object.create(superclass.constructor);
+			if (methods) extend(constructor.prototype, methods);
+			if (statics) extend(constructor, statics);
+			return constructor;
+		}
+
+		function extend(obj1, obj2){
+			for (var prop in obj2)
+				if (!(obj1.hasOwnProperty(prop)))
+					obj1[prop] = obj2[prop];
+		}
+
+	</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset=utf-8>
+	<title>test</title>
+</head>
+<body>
+	<script>
+		var obj = {};
+		Object.defineProperty(obj, 'x', {
+			value: 1, writeble: true, enumerable: false, cobfigurable: true
+		});
+		console.log(obj.x);
+		console.log(Object.keys(obj));
+		var properties = [];
+		for(var property in obj)
+			properties.push(property);
+		console.log(properties);
+
+		Object.defineProperty(obj, "x", {
+			writeble: false
+		});
+		console.log(obj.x = 2);
+		console.log(obj.x);
+	</script>
+</body>
+</html>
